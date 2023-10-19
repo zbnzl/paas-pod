@@ -155,6 +155,10 @@ func (m *PodInfo) validate(all bool) error {
 
 	// no validation rules for PodImage
 
+	// no validation rules for PodCpuMin
+
+	// no validation rules for PodMemoryMin
+
 	if len(errors) > 0 {
 		return PodInfoMultiError(errors)
 	}

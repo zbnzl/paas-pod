@@ -1,7 +1,12 @@
 package server
 
 import (
+	"github.com/go-kratos/kratos/v2/middleware/logging"
+	"github.com/go-kratos/kratos/v2/middleware/metadata"
+	"github.com/go-kratos/kratos/v2/middleware/ratelimit"
+	"github.com/go-kratos/kratos/v2/middleware/validate"
 	v1 "github.com/zbnzl/paas-pod/api/helloworld/v1"
+	podv1 "github.com/zbnzl/paas-pod/api/pod/v1"
 	"github.com/zbnzl/paas-pod/internal/conf"
 	"github.com/zbnzl/paas-pod/internal/service"
 
@@ -11,10 +16,14 @@ import (
 )
 
 // NewHTTPServer new an HTTP server.
-func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, logger log.Logger) *http.Server {
+func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, pod *service.PodService, logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
 			recovery.Recovery(),
+			ratelimit.Server(),
+			metadata.Server(),
+			logging.Server(logger),
+			validate.Validator(),
 		),
 	}
 	if c.Http.Network != "" {
@@ -28,5 +37,6 @@ func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, logger log.L
 	}
 	srv := http.NewServer(opts...)
 	v1.RegisterGreeterHTTPServer(srv, greeter)
+	podv1.RegisterPodHTTPServer(srv, pod)
 	return srv
 }

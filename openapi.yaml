@@ -25,7 +25,41 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/helloworld.v1.HelloReply'
-    /v1/pod/add:
+    /v1/pod:
+        get:
+            tags:
+                - Pod
+            operationId: Pod_FindPodByID
+            parameters:
+                - name: id
+                  in: query
+                  schema:
+                    type: integer
+                    format: int64
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.pod.v1.PodInfo'
+        put:
+            tags:
+                - Pod
+            operationId: Pod_UpdatePod
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.pod.v1.PodInfo'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.pod.v1.Response'
         post:
             tags:
                 - Pod
@@ -43,8 +77,44 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.pod.v1.Response'
+        delete:
+            tags:
+                - Pod
+            operationId: Pod_DeletePod
+            parameters:
+                - name: id
+                  in: query
+                  schema:
+                    type: integer
+                    format: int64
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.pod.v1.Response'
+    /v1/pods:
+        get:
+            tags:
+                - Pod
+            operationId: Pod_FindAllPod
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.pod.v1.AllPod'
 components:
     schemas:
+        api.pod.v1.AllPod:
+            type: object
+            properties:
+                podInfo:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.pod.v1.PodInfo'
         api.pod.v1.PodEnv:
             type: object
             properties:
@@ -92,6 +162,12 @@ components:
                     type: string
                 podImage:
                     type: string
+                podCpuMin:
+                    type: number
+                    format: float
+                podMemoryMin:
+                    type: number
+                    format: float
         api.pod.v1.PodPort:
             type: object
             properties:

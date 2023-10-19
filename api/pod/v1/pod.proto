@@ -12,14 +12,31 @@ option java_package = "api.pod.v1";
 service Pod {
 	rpc AddPod(PodInfo) returns (Response) {
 		option (google.api.http) = {
-			post: "/v1/pod/add",
+			post: "/v1/pod",
 			body: "*"
 		};
 	}
-	rpc DeletePod(PodId) returns (Response) {}
-	rpc FindPodByID(PodId) returns (PodInfo) {}
-	rpc UpdatePod(PodInfo) returns (Response) {}
-	rpc FindAllPod(FindAll) returns (AllPod){}
+	rpc DeletePod(PodId) returns (Response) {
+		option (google.api.http) = {
+			delete: "/v1/pod"
+		};
+	}
+	rpc FindPodByID(PodId) returns (PodInfo) {
+		option (google.api.http) = {
+			get: "/v1/pod"
+		};
+	}
+	rpc UpdatePod(PodInfo) returns (Response) {
+		option (google.api.http) = {
+			put: "/v1/pod",
+			body: "*"
+		};
+	}
+	rpc FindAllPod(FindAll) returns (AllPod){
+		option (google.api.http) = {
+			get: "/v1/pods"
+		};
+	}
 }
 
 message PodInfo {
@@ -36,6 +53,10 @@ message PodInfo {
 	string pod_restart =11;
 	string pod_type=12;
 	string pod_image=13;
+	float pod_cpu_min = 14;
+	float pod_memory_min =15;
+
+
 }
 
 message PodPort {

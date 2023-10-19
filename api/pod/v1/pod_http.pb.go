@@ -20,14 +20,26 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 const OperationPodAddPod = "/api.pod.v1.Pod/AddPod"
+const OperationPodDeletePod = "/api.pod.v1.Pod/DeletePod"
+const OperationPodFindAllPod = "/api.pod.v1.Pod/FindAllPod"
+const OperationPodFindPodByID = "/api.pod.v1.Pod/FindPodByID"
+const OperationPodUpdatePod = "/api.pod.v1.Pod/UpdatePod"
 
 type PodHTTPServer interface {
 	AddPod(context.Context, *PodInfo) (*Response, error)
+	DeletePod(context.Context, *PodId) (*Response, error)
+	FindAllPod(context.Context, *FindAll) (*AllPod, error)
+	FindPodByID(context.Context, *PodId) (*PodInfo, error)
+	UpdatePod(context.Context, *PodInfo) (*Response, error)
 }
 
 func RegisterPodHTTPServer(s *http.Server, srv PodHTTPServer) {
 	r := s.Route("/")
-	r.POST("/v1/pod/add", _Pod_AddPod0_HTTP_Handler(srv))
+	r.POST("/v1/pod", _Pod_AddPod0_HTTP_Handler(srv))
+	r.DELETE("/v1/pod", _Pod_DeletePod0_HTTP_Handler(srv))
+	r.GET("/v1/pod", _Pod_FindPodByID0_HTTP_Handler(srv))
+	r.PUT("/v1/pod", _Pod_UpdatePod0_HTTP_Handler(srv))
+	r.GET("/v1/pods", _Pod_FindAllPod0_HTTP_Handler(srv))
 }
 
 func _Pod_AddPod0_HTTP_Handler(srv PodHTTPServer) func(ctx http.Context) error {
@@ -49,8 +61,88 @@ func _Pod_AddPod0_HTTP_Handler(srv PodHTTPServer) func(ctx http.Context) error {
 	}
 }
 
+func _Pod_DeletePod0_HTTP_Handler(srv PodHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in PodId
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationPodDeletePod)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.DeletePod(ctx, req.(*PodId))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*Response)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Pod_FindPodByID0_HTTP_Handler(srv PodHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in PodId
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationPodFindPodByID)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.FindPodByID(ctx, req.(*PodId))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*PodInfo)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Pod_UpdatePod0_HTTP_Handler(srv PodHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in PodInfo
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationPodUpdatePod)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.UpdatePod(ctx, req.(*PodInfo))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*Response)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Pod_FindAllPod0_HTTP_Handler(srv PodHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in FindAll
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationPodFindAllPod)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.FindAllPod(ctx, req.(*FindAll))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AllPod)
+		return ctx.Result(200, reply)
+	}
+}
+
 type PodHTTPClient interface {
 	AddPod(ctx context.Context, req *PodInfo, opts ...http.CallOption) (rsp *Response, err error)
+	DeletePod(ctx context.Context, req *PodId, opts ...http.CallOption) (rsp *Response, err error)
+	FindAllPod(ctx context.Context, req *FindAll, opts ...http.CallOption) (rsp *AllPod, err error)
+	FindPodByID(ctx context.Context, req *PodId, opts ...http.CallOption) (rsp *PodInfo, err error)
+	UpdatePod(ctx context.Context, req *PodInfo, opts ...http.CallOption) (rsp *Response, err error)
 }
 
 type PodHTTPClientImpl struct {
@@ -63,11 +155,63 @@ func NewPodHTTPClient(client *http.Client) PodHTTPClient {
 
 func (c *PodHTTPClientImpl) AddPod(ctx context.Context, in *PodInfo, opts ...http.CallOption) (*Response, error) {
 	var out Response
-	pattern := "/v1/pod/add"
+	pattern := "/v1/pod"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationPodAddPod))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *PodHTTPClientImpl) DeletePod(ctx context.Context, in *PodId, opts ...http.CallOption) (*Response, error) {
+	var out Response
+	pattern := "/v1/pod"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationPodDeletePod))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *PodHTTPClientImpl) FindAllPod(ctx context.Context, in *FindAll, opts ...http.CallOption) (*AllPod, error) {
+	var out AllPod
+	pattern := "/v1/pods"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationPodFindAllPod))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *PodHTTPClientImpl) FindPodByID(ctx context.Context, in *PodId, opts ...http.CallOption) (*PodInfo, error) {
+	var out PodInfo
+	pattern := "/v1/pod"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationPodFindPodByID))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *PodHTTPClientImpl) UpdatePod(ctx context.Context, in *PodInfo, opts ...http.CallOption) (*Response, error) {
+	var out Response
+	pattern := "/v1/pod"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationPodUpdatePod))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

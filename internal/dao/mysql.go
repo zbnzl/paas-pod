@@ -19,9 +19,7 @@ func NewMysqlDb(data *conf.Data) (*gorm.DB, error) {
 	db.LogMode(true) // 如果需要打印SQL执行日志
 
 	// 自动迁移模型到数据库中
-	if err := db.AutoMigrate(&model.Pod{}, &model.PodPort{}, &model.PodEnv{}); err != nil {
-		panic("AutoMigrate failed")
-	}
+	db.AutoMigrate(&model.Pod{}, &model.PodPort{}, &model.PodEnv{})
 
 	return db, nil
 }
