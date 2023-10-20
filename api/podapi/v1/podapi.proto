@@ -41,10 +41,6 @@ service PodApi {
 	}
 }
 
-message FindPodByIdRequest {
-	int64 pod_id = 1 [(validate.rules).int64.gt = 0];
-}
-
 message Pair {
 	string key = 1;
 	repeated string values = 2;
