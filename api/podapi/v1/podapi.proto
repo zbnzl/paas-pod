@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package api.podApi.v1;
+
+import "google/api/annotations.proto";
+import "validate/validate.proto";
+import "pod/v1/pod.proto";
+
+option go_package = "github.com/zbnzl/paas-pod/api/podapi/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.podapi.v1";
+
+service PodApi {
+	rpc FindPodById (api.pod.v1.PodId) returns (api.pod.v1.PodInfo) {
+		option (google.api.http) = {
+			get: "/v1/pod"
+		};
+	}
+	rpc AddPod(api.pod.v1.PodInfo) returns (api.pod.v1.Response){
+		option (google.api.http) = {
+			post: "/v1/pod",
+			body: "*"
+		};
+	}
+	rpc DeletePodById(api.pod.v1.PodId) returns (api.pod.v1.Response){
+		option (google.api.http) = {
+			delete: "/v1/pod"
+		};
+	}
+	rpc UpdatePod(api.pod.v1.PodInfo) returns (api.pod.v1.Response){
+		option (google.api.http) = {
+			put: "/v1/pod",
+			body: "*"
+		};
+	}
+	//默认接口
+	rpc Call(Request) returns (Response){
+		option (google.api.http) = {
+			get: "/v1"
+		};
+	}
+}
+
+message FindPodByIdRequest {
+	int64 pod_id = 1 [(validate.rules).int64.gt = 0];
+}
+
+message Pair {
+	string key = 1;
+	repeated string values = 2;
+}
+
+message Request {
+	string method = 1 [(validate.rules).string.min_len = 1];
+	string path = 2;
+	map<string, Pair> header = 3;
+	map<string, Pair> get = 4;
+	map<string, Pair> post = 5;
+	string body = 6;
+	string url = 7;
+}
+
+message Response {
+	int32 statusCode = 1;
+	map<string, Pair> header = 2;
+	string body = 3;
+}
+message DeletePodApiRequest {}
+message DeletePodApiReply {}
+
+message GetPodApiRequest {}
+message GetPodApiReply {}
+
+message ListPodApiRequest {}
+message ListPodApiReply {}

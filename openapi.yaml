@@ -25,11 +25,41 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/helloworld.v1.HelloReply'
+    /v1:
+        get:
+            tags:
+                - PodApi
+            description: 默认接口
+            operationId: PodApi_Call
+            parameters:
+                - name: method
+                  in: query
+                  schema:
+                    type: string
+                - name: path
+                  in: query
+                  schema:
+                    type: string
+                - name: body
+                  in: query
+                  schema:
+                    type: string
+                - name: url
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.podApi.v1.Response'
     /v1/pod:
         get:
             tags:
-                - Pod
-            operationId: Pod_FindPodByID
+                - PodApi
+            operationId: PodApi_FindPodById
             parameters:
                 - name: id
                   in: query
@@ -45,8 +75,8 @@ paths:
                                 $ref: '#/components/schemas/api.pod.v1.PodInfo'
         put:
             tags:
-                - Pod
-            operationId: Pod_UpdatePod
+                - PodApi
+            operationId: PodApi_UpdatePod
             requestBody:
                 content:
                     application/json:
@@ -62,8 +92,8 @@ paths:
                                 $ref: '#/components/schemas/api.pod.v1.Response'
         post:
             tags:
-                - Pod
-            operationId: Pod_AddPod
+                - PodApi
+            operationId: PodApi_AddPod
             requestBody:
                 content:
                     application/json:
@@ -79,8 +109,8 @@ paths:
                                 $ref: '#/components/schemas/api.pod.v1.Response'
         delete:
             tags:
-                - Pod
-            operationId: Pod_DeletePod
+                - PodApi
+            operationId: PodApi_DeletePodById
             parameters:
                 - name: id
                   in: query
@@ -184,6 +214,27 @@ components:
             properties:
                 msg:
                     type: string
+        api.podApi.v1.Pair:
+            type: object
+            properties:
+                key:
+                    type: string
+                values:
+                    type: array
+                    items:
+                        type: string
+        api.podApi.v1.Response:
+            type: object
+            properties:
+                statusCode:
+                    type: integer
+                    format: int32
+                header:
+                    type: object
+                    additionalProperties:
+                        $ref: '#/components/schemas/api.podApi.v1.Pair'
+                body:
+                    type: string
         helloworld.v1.HelloReply:
             type: object
             properties:
@@ -194,3 +245,4 @@ tags:
     - name: Greeter
       description: The greeting service definition.
     - name: Pod
+    - name: PodApi
