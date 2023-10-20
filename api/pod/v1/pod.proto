@@ -71,7 +71,7 @@ message PodEnv {
 	string env_value =3;
 }
 message PodId {
-	int64 id =1;
+	int64 id =1 [(validate.rules).int64.gt = 0];
 }
 message Response {
 	string msg =1;

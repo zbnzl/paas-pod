@@ -1,6 +1,7 @@
 package data
 
 import (
+	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/jinzhu/gorm"
 	"github.com/zbnzl/paas-pod/internal/biz"
 	"github.com/zbnzl/paas-pod/internal/model"
@@ -22,7 +23,10 @@ func (u *PodRepository) InitTable() error {
 // 根据ID查找Pod信息
 func (u *PodRepository) FindPodByID(podID int64) (pod *model.Pod, err error) {
 	pod = &model.Pod{}
-	return pod, u.mysqlDb.Preload("PodEnv").Preload("PodPort").First(pod, podID).Error
+	if err = u.mysqlDb.Preload("PodEnv").Preload("PodPort").First(pod, podID).Error; gorm.IsRecordNotFoundError(err) {
+		return pod, errors.NotFound("", err.Error())
+	}
+	return pod, err
 }
 
 // 创建 Pod
